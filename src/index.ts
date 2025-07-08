@@ -15,7 +15,8 @@ async function main() {
             envConfig.get('DISCORD_BOT_TOKEN') || ''
         );
 
-        await discordService.sendMessage("Hello, Discord!", "1370842391841607763");
+        // Startup message
+        await discordService.sendMessage(":_WhiteHeart: Bot Started Up successfully", "1223288973787664497");
 
         // Graceful shutdown
         process.on('SIGINT', () => {
