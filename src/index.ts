@@ -1,34 +1,31 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-import { AuthController } from './controller/auth.controller';
-import { UserMonitorController } from './controller/user-monitor.controller';
-
-const username = process.env.VRCHAT_USERNAME || '';
-const password = process.env.VRCHAT_PASSWORD || '';
-
-if (!username || !password) {
-  console.error('❌ Please set VRCHAT_USERNAME and VRCHAT_PASSWORD environment variables.');
-  process.exit(1);
-}
+import {DiscordService} from "./service/discord.service";
+import {EnvConfig} from "./config/env.config";
+import {SlashCommandRegistrar} from "./service/SlashCommandRegistrar";
 
 async function main() {
-  const authController = new AuthController();
-  try {
-    await authController.authenticate(username, password);
-    // Start monitoring only after successful authentication
-    const monitor = new UserMonitorController();
-    monitor.startMonitoring();
 
-    // Graceful shutdown
-    process.on('SIGINT', () => {
-      monitor.stopMonitoring();
-      process.exit();
-    });
-  } catch (err) {
-    console.error('❌ Authentication failed, exiting.');
-    process.exit(1);
-  }
+    try {
+        // Define classes
+        const envConfig = EnvConfig.getInstance();
+
+        const registrar = new SlashCommandRegistrar(envConfig.get('DISCORD_BOT_TOKEN') || '', envConfig.get('DISCORD_CLIENT_ID') || '', envConfig.get('DISCORD_GUILD_ID') || '');
+        await registrar.registerCommands();
+
+        const discordService = new DiscordService(
+            envConfig.get('DISCORD_BOT_TOKEN') || ''
+        );
+
+        await discordService.sendMessage("Hello, Discord!", "1370842391841607763");
+
+        // Graceful shutdown
+        process.on('SIGINT', () => {
+            discordService.destroy()
+            process.exit();
+        });
+    } catch (err) {
+        console.error('❌ Startup failed, exiting.');
+        process.exit(1);
+    }
 }
 
 main();
