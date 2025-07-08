@@ -16,7 +16,7 @@ async function main() {
         );
 
         // Startup message
-        await discordService.sendMessage(":_WhiteHeart: Bot Started Up successfully", "1223288973787664497");
+        await discordService.sendMessage("<:WhiteHeart:1238466388163825694> Bot Started Up successfully", "1223288973787664497");
 
         // Graceful shutdown
         process.on('SIGINT', () => {
